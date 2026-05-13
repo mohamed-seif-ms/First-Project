@@ -9,6 +9,7 @@ const adsRoutes = require('./routes/ads');
 const insightsRoutes = require('./routes/insights');
 const pagesRoutes = require('./routes/pages');
 const leadsRoutes = require('./routes/leads');
+const agentRoutes = require('./routes/agent');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -47,6 +48,7 @@ app.use('/ads', adsRoutes);
 app.use('/insights', insightsRoutes);
 app.use('/pages', pagesRoutes);
 app.use('/leads', leadsRoutes);
+app.use('/agent', agentRoutes);
 
 // 404
 app.use((req, res) => {
