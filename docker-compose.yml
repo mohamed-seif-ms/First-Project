@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: meta-business-api
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-3000}:3000"
+    restart: unless-stopped
+    networks:
+      - automation
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-changeme}
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      - GENERIC_TIMEZONE=${TZ:-UTC}
+      # Base URL the workflows below use to reach the app over the docker network
+      - META_APP_BASE_URL=http://app:3000
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n/workflows:/home/node/workflows:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+    networks:
+      - automation
+
+volumes:
+  n8n_data:
+
+networks:
+  automation:
+    driver: bridge

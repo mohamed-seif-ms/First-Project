@@ -115,3 +115,37 @@ npm run dev      # Development (nodemon)
 ```
 GET /health
 ```
+
+## n8n Integration
+
+This project ships with a ready-to-run [n8n](https://n8n.io) instance (workflow automation) wired up alongside the API server via Docker Compose.
+
+### 1. Configure environment
+```bash
+cp .env.example .env
+# fill in your Meta + Anthropic credentials, and optionally change the n8n basic-auth login
+```
+
+### 2. Start both services
+```bash
+docker compose up -d
+```
+This starts:
+- **app** — this Express server, reachable at `http://localhost:3000`
+- **n8n** — the n8n editor, reachable at `http://localhost:5678` (login: `N8N_BASIC_AUTH_USER` / `N8N_BASIC_AUTH_PASSWORD` from `.env`, defaults `admin` / `changeme`)
+
+Inside the shared Docker network, n8n reaches the app at `http://app:3000` (exposed to n8n as the `META_APP_BASE_URL` environment variable).
+
+### 3. Import the example workflows
+Open the n8n editor at `http://localhost:5678`, then **Workflows → Import from File** and pick any file from `n8n/workflows/`:
+
+| Workflow | Trigger | What it does |
+|----------|---------|---------------|
+| `new-leads-sync.json` | Every 15 minutes | Calls `GET /leads/all` and splits out each lead so you can route it to a CRM, spreadsheet, or Slack |
+| `daily-insights-report.json` | Daily at 8am | Calls `GET /insights/account` so you can forward the numbers to Slack/email |
+| `ask-meta-agent.json` | Webhook (`POST /webhook/ask-meta-agent`) | Forwards `{ "message": "..." }` to `POST /agent/chat` (the Claude-powered agent) and returns its reply |
+
+Each workflow has a placeholder `NoOp`/response node marking where to plug in your destination (Slack, Sheets, email, etc.) — activate the workflow once you've wired that up.
+
+### Running n8n without Docker
+If you already run n8n elsewhere (self-hosted or n8n cloud), skip the compose file — just point its HTTP Request nodes at this server's public URL instead of `http://app:3000`, and import the same workflow files.

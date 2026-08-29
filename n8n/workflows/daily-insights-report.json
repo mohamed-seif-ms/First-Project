@@ -1,0 +1,80 @@
+{
+  "name": "Meta - Daily Insights Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "116a4cfc-707d-4d44-9a9f-466ef25e1e6c",
+      "name": "Every Day at 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.META_APP_BASE_URL }}/insights/account",
+        "options": {}
+      },
+      "id": "e21136b1-301c-4bff-82f6-c8e52d6b516f",
+      "name": "Get Account Insights",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "23a0e08b-0dc1-40b5-91bd-c1cc2e09e120",
+      "name": "Send Report (Slack / Email)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        80,
+        0
+      ],
+      "notes": "Replace this placeholder with a Slack, Gmail, or other notification node to deliver the insights payload."
+    }
+  ],
+  "connections": {
+    "Every Day at 8am": {
+      "main": [
+        [
+          {
+            "node": "Get Account Insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Account Insights": {
+      "main": [
+        [
+          {
+            "node": "Send Report (Slack / Email)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

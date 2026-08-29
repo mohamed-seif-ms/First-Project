@@ -1,0 +1,83 @@
+{
+  "name": "Meta - Ask AI Agent (Webhook)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ask-meta-agent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "9cbc0923-fac4-412c-961f-86ef774122db",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        0
+      ],
+      "webhookId": "ask-meta-agent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.META_APP_BASE_URL }}/agent/chat",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"message\": $json.body.message } }}",
+        "options": {}
+      },
+      "id": "952f0646-d7e5-4fe8-95ae-13961ee368cc",
+      "name": "Ask Meta Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"reply\": $json.reply } }}",
+        "options": {}
+      },
+      "id": "1f8b9c2a-2e7d-4c11-9a0e-6b6f5a2d8e11",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Ask Meta Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Meta Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
